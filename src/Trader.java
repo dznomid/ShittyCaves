@@ -5,20 +5,20 @@ public class Trader extends Creature{
     public Trader(){
         this.str = 100;
         this.agil = 33;
-        this.health = 1000;
+        this.health = 100;
         this.name = "Trader"; // Velial >:) если игрок решит убить торговца и победит, то игра закончится, так как это скрытый антагонист
         this.gold = 5000;
         isAlive = true;
     }
     public void sellPotion(Hero hero){
         if (hero.getGold() > 200) {
-            hero.gold =- 150;
+            hero.gold -= 200;
             Hero.addPotion(hero);
-            super.gold += 150;
+            super.gold += 200;
             System.out.println("You bought 1 healing potion from Trader. He wish you a good luck in your adventures");
             System.out.println("Now you have " + hero.getNumberOfPotions() + " potions.");
         } else {
-            System.out.println("You have no money, Amigo. You have only " + hero.getGold() + " gold.");
+            System.out.println("You have no money, Amigo. You have only " + hero.getGold() + " gold. And it costs 200.");
         }
     }
     public void speech(){

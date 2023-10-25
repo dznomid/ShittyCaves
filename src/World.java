@@ -25,7 +25,7 @@ public class World extends Thread{
                     System.out.println("1.Buy a potion 2.Speak with Trader 3.Attack a Trader 4.Leave   (Write a number)");
                     Scanner scanner2 = new Scanner(System.in);
                     String choose = scanner2.nextLine();
-                    while (!choose.equals("4")) {
+                    while (!choose.equals("4") && trader.isAlive) {
                         switch (choose) {
                             case "1":
                                 trader.sellPotion(hero);
@@ -50,13 +50,23 @@ public class World extends Thread{
                                 choose = scanner2.nextLine();
                                 continue;
                         }
+                        if(trader.getHealth() <= 0){
+                            trader.isAlive = false;
+                        }
                         if (!hero.isAlive){break;}
-                        System.out.println("1.Buy a potion 2.Speak with Trader 3.Attack a Trader 4.Leave   (Write a number)");
-                        choose = scanner2.nextLine();
+                        if(trader.isAlive){
+                            System.out.println("1.Buy a potion 2.Speak with Trader 3.Attack a Trader 4.Leave   (Write a number)");
+                            choose = scanner2.nextLine();
+                        } else if(!trader.isAlive){
+                            choose = "4";
+                            break;
+                        }
 
                     }
 
-                    System.out.println("Bye-bye Amigo, Ne pro-pa-die");
+                    if (trader.isAlive){
+                        System.out.println("Bye-bye Amigo, Ne pro-pa-die");
+                    }
                     break;
                 case "2":
                     lastLvl = (int)Math.floor(hero.getLvl());
@@ -64,70 +74,90 @@ public class World extends Thread{
                     Scanner scanner3 = new Scanner(System.in);
                     String woodDest = scanner3.nextLine();
                     while (!woodDest.equals("2")){
-
-                        double enemy = Math.random();
-                        if (enemy >= 0.5){
-                            Zombie zombie = new Zombie();
-                            System.out.println("You see a " + zombie.getName() + " and attack him.");
-                            Fight fight = new Fight(hero, zombie);
-                            fight.start();
-                            try {
-                                fight.join();
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                        } else {
-                            Skeleton skeleton = new Skeleton();
-                            System.out.println("You see a " + skeleton.getName() + " and attack him.");
-                            Fight fight = new Fight(hero, skeleton);
-                            fight.start();
-                            try {
-                                fight.join();
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        if (!hero.isAlive){
-                            if (hero.getNumberOfPotions() > 0){
-                                hero.useAPotion();
-                                hero.health += 70;
-                                hero.isAlive = true;
-                                System.out.println("you avoided death by healing with a potion outside of fight. You have " + hero.getNumberOfPotions() + " potions left");
-                            }else{
-                                System.out.println("YOU DIED");
-                                break;
-                            }
-                        }
-                        newLvl = (int)Math.floor(hero.getLvl());
-                        if (newLvl > lastLvl){
-                            System.out.println("I reached a level " + (int)Math.floor(hero.getLvl()));
-                            System.out.println("1. upgrade strait 2. Upgrade agility");
-                            Scanner scanner4 = new Scanner(System.in);
-                            String lvlUp = scanner4.nextLine();
-                            lvlUpped = false;
-                            while (!lvlUpped){
-                                switch (lvlUp) {
-                                    case "1":
-                                        lvlUpped = true;
-                                        hero.str += 7;
-                                        System.out.println("Your strait is now on " + hero.getStr() + " points");
-                                        lastLvl = (int)Math.floor(hero.getLvl());
-                                        break;
-                                    case "2":
-                                        lvlUpped = true;
-                                        hero.agil += 7;
-                                        System.out.println("Your agility is now on " + hero.getAgil() + " points");
-                                        lastLvl = (int)Math.floor(hero.getLvl());
-                                        break;
-                                    default:
-                                        System.out.println("You need to choose 1. upgrade strait 2. Upgrade agility");
-                                        lvlUp = scanner4.nextLine();
-                                        continue;
+                        switch(woodDest){
+                            case"1":
+                                double enemy = Math.random();
+                                if (enemy >= 0.5){
+                                    Zombie zombie = new Zombie();
+                                    System.out.println("You see a " + zombie.getName() + " and attack him.");
+                                    Fight fight = new Fight(hero, zombie);
+                                    fight.start();
+                                    try {
+                                        fight.join();
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                } else {
+                                    Skeleton skeleton = new Skeleton();
+                                    System.out.println("You see a " + skeleton.getName() + " and attack him.");
+                                    Fight fight = new Fight(hero, skeleton);
+                                    fight.start();
+                                    try {
+                                        fight.join();
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }
+                                if (!hero.isAlive){
+                                    if (hero.getNumberOfPotions() > 0){
+                                        hero.useAPotion();
+                                        hero.health += 70;
+                                        hero.isAlive = true;
+                                        if (hero.getHealth() > 150){
+                                            hero.health = 150;
+                                        }
+                                        System.out.println("you avoided death by healing with a potion outside of fight. You have " + hero.getNumberOfPotions() + " potions left");
+                                    }else{
+                                        System.out.println("YOU DIED");
+                                        hero.isAlive = false;
+                                        break;
+                                    }
+                                }
+                                newLvl = (int)Math.floor(hero.getLvl());
+                                if (newLvl > lastLvl && hero.isAlive){
+                                    System.out.println("I reached a level " + (int)Math.floor(hero.getLvl()));
+                                    System.out.println("1. upgrade strait 2. Upgrade agility");
+                                    Scanner scanner4 = new Scanner(System.in);
+                                    String lvlUp = scanner4.nextLine();
+                                    lvlUpped = false;
+                                    while (!lvlUpped){
+                                        switch (lvlUp) {
+                                            case "1":
+                                                lvlUpped = true;
+                                                hero.str += 7;
+                                                System.out.println("Your strait is now on " + hero.getStr() + " points");
+                                                lastLvl = (int)Math.floor(hero.getLvl());
+                                                break;
+                                            case "2":
+                                                lvlUpped = true;
+                                                hero.agil += 7;
+                                                System.out.println("Your agility is now on " + hero.getAgil() + " points");
+                                                lastLvl = (int)Math.floor(hero.getLvl());
+                                                break;
+                                            default:
+                                                System.out.println("You need to choose 1. upgrade strait 2. Upgrade agility");
+                                                lvlUp = scanner4.nextLine();
+                                                continue;
+                                        }
 
-                            }
+                                    }
+                                }break;
+                            case "3":
+                                if (hero.getNumberOfPotions() > 0){
+                                    hero.useAPotion();
+                                    hero.health += 70;
+                                    if (hero.getHealth() > 150){
+                                        hero.health = 150;
+                                    }
+                                    System.out.println("You've used a healing potion. Now you have " + hero.getHealth() + "HP and " + hero.getNumberOfPotions() + " potions left.");
+                                }else {
+                                    System.out.println("You have no healing potions...");
+                                }
+                                break;
                         }
-                        System.out.println("1. Keep going 2. Go out from woods 3. Use a healing potion");
+                        if (hero.isAlive){
+                            System.out.println("1. Keep going 2. Go out from woods 3. Use a healing potion");
+                        }else {break;}
                         woodDest = scanner3.nextLine();
                     }
                     break;
@@ -139,6 +169,21 @@ public class World extends Thread{
                     System.out.println("Please enter 1. 2. or 3.");
                     break;
 //                if (!hero.isAlive){break;}
+            }
+        }
+        if (!willToFight){
+            System.out.println("You shamefully gave up. Your fathers will not be proud of you...");
+        }else {
+            if (!hero.isAlive){
+                System.out.println("You ended your adventure in a pool of blood on the ground. At least you died like a hero.(Most likely)");
+            } else {
+                if(!trader.isAlive){
+                    System.out.println("You won. You've done what no one before you could do. You defeated the demon Velial and rid this land of evil. You are not just a hero, but you are a champion. Honor and glory to you and your family you, " + hero.getName() + ".");
+                    System.out.println(" ");
+                    System.out.println(" ");
+                    System.out.println(" ");
+                    System.out.println("THANKS FOR PLAYING!");
+                }
             }
         }
     }
