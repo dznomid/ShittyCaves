@@ -1,14 +1,14 @@
 import java.util.Scanner;
 
 public class World extends Thread{
-    private boolean willToFight = true;
+    private boolean willToFight = true;//этот параметр будет оставаться правдой до тех пор пока игрок не нажмёт кнопку на выход
     private Hero hero;
     private Trader trader;
     int lastLvl;
     int newLvl;
     boolean lvlUpped;
     public World() {
-        this.hero = new Hero(100, 150, 20, 15); //этот параметр будет оставаться правдой до тех пор пока игрок не нажмёт кнопку на выход
+        this.hero = new Hero(100, 150, 20, 15); 
         this.trader = new Trader();
     }
     public void run(){
